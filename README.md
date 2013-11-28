@@ -25,3 +25,13 @@ Erlang will eventually follow.
 To start the service:
 
     python src/python/cas.py [--port ...] [--dir ...]
+
+### Ruby
+
+Requirements:
+
+    gem install sinatra thin
+
+To start the service:
+
+    ruby src/ruby/cas.rb [--port ...]
