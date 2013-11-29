@@ -1,0 +1,15 @@
+LANGS = go
+
+all:
+	@for lang in $(LANGS); do \
+		cd "src/$$lang" && make all && cd -; \
+	done
+
+clean:
+	@for lang in $(LANGS); do \
+		cd "src/$$lang" && make clean && cd -; \
+	done
+
+cleanall: clean
+	-rm $(shell find . -name Makefile)
+	-rm -rf bin

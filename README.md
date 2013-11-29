@@ -20,6 +20,11 @@ Future enhancements:
 The first implementation is written in Python. Versions using Ruby, Go, and
 Erlang will eventually follow.
 
+To build all services:
+
+    ./configure
+    make
+
 ### Python
 
 To start the service:
@@ -44,4 +49,4 @@ Requirements:
 
 To start the service:
 
-    go src/go/cas.go [-port ...]
+    bin/go/cas [-port ...] [-dir ...]

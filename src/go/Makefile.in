@@ -1,0 +1,14 @@
+GOLANG      = go build
+INSTALLPATH = @INSTALLPATH@/go
+
+PROGRAMS    = cas
+
+all: ${PROGRAMS}
+
+cas:
+	@mkdir -p ${INSTALLPATH}
+	${GOLANG} cas.go store.go
+	@mv $@ ${INSTALLPATH}
+
+clean:
+	@echo
