@@ -53,7 +53,7 @@ func main() {
 	flag.Parse()
 
 	// set directory for content storage
-	store.Setcwd(*home)
+	store.SetRoot(*home)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{id}", RetrieveHandler).Methods("GET")

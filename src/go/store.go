@@ -8,15 +8,15 @@ import (
 )
 
 type Storage struct {
-	cwd string
+	root string // Directory for storage content
 }
 
-func (s *Storage) Setcwd(path string) {
-	s.cwd = path + "/"
+func (s *Storage) SetRoot(directory string) {
+	s.root = directory + "/"
 }
 
 func (s *Storage) Exists(filename string) bool {
-	_, err := os.Stat(s.cwd + filename)
+	_, err := os.Stat(s.root + filename)
 	if err == nil {
 		return true
 	}
@@ -24,11 +24,11 @@ func (s *Storage) Exists(filename string) bool {
 }
 
 func (s *Storage) ReadAll(filename string) ([]byte, error) {
-	return ioutil.ReadFile(s.cwd + filename)
+	return ioutil.ReadFile(s.root + filename)
 }
 
 func (s *Storage) WriteAll(filename string, data []byte) error {
-	return ioutil.WriteFile(s.cwd+filename, data, 0644)
+	return ioutil.WriteFile(s.root+filename, data, 0644)
 }
 
 func Hash(data []byte) string {
