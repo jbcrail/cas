@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/sha1"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -11,46 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Filesystem struct {
-	cwd string
-}
-
-func (fs *Filesystem) Setcwd(path string) {
-	fs.cwd = path + "/"
-}
-
-func (fs *Filesystem) Exists(filename string) bool {
-	_, err := os.Stat(fs.cwd + filename)
-	if err == nil {
-		return true
-	}
-	return os.IsNotExist(err)
-}
-
-func (fs *Filesystem) ReadAll(filename string) ([]byte, error) {
-	return ioutil.ReadFile(fs.cwd + filename)
-}
-
-func (fs *Filesystem) WriteAll(filename string, data []byte) error {
-	return ioutil.WriteFile(fs.cwd+filename, data, 0644)
-}
-
-func Hash(data []byte) string {
-	h := sha1.New()
-	h.Write(data)
-	return fmt.Sprintf("%x", h.Sum(nil))
-}
-
-var fs Filesystem
+var store Storage
 
 func RetrieveHandler(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id := vars["id"]
-	if !fs.Exists(id) {
+	if !store.Exists(id) {
 		http.Error(w, "SHA-1 "+id+" does not exist", http.StatusNotFound)
 		return
 	}
-	content, _ := fs.ReadAll(id)
+	content, _ := store.ReadAll(id)
 	contentId := Hash(content)
 	if id != contentId {
 		http.Error(w, "Content is corrupted", http.StatusInternalServerError)
@@ -67,21 +35,25 @@ func StoreHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	content, _ := ioutil.ReadAll(req.Body)
 	id := Hash(content)
-	if fs.Exists(id) {
+	if store.Exists(id) {
 		http.Error(w, "", http.StatusConflict)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	if err := fs.WriteAll(id, content); err != nil {
+	if err := store.WriteAll(id, content); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func main() {
 	pwd, _ := os.Getwd()
-	fs.Setcwd(pwd)
 
 	port := flag.String("port", "4567", "port")
+	home := flag.String("dir", pwd, "storage directory")
+	flag.Parse()
+
+	// set directory for content storage
+	store.Setcwd(*home)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{id}", RetrieveHandler).Methods("GET")
