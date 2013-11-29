@@ -35,3 +35,13 @@ Requirements:
 To start the service:
 
     ruby src/ruby/cas.rb [--port ...]
+
+### Go
+
+Requirements:
+
+    go get github.com/gorilla/mux
+
+To start the service:
+
+    go src/go/cas.go [-port ...]
