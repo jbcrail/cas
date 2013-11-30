@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+class Service
+    def initialize(name)
+        @name = name
+    end
+
+    def start(port)
+        puts "starting #{@name.capitalize} service on port #{port}"
+    end
+
+    def stop
+    end
+
+    def restart
+    end
+
+    def test
+    end
+end
+
+class Parser
+    attr_reader :options
+
+    PROGRAM = "cas"
+
+    def initialize(args)
+        @options = {}
+        @options[:port] = 4567
+
+        @opt_parser = OptionParser.new do |opts|
+            opts.banner = "Usage: #{PROGRAM} COMMAND [OPTIONS]"
+            opts.separator  ""
+            opts.separator  "Commands"
+            opts.separator  "     start:   start services"
+            opts.separator  "     stop:    stop services"
+            opts.separator  "     restart: restart services"
+            opts.separator  "     test:    test services"
+            opts.separator  ""
+            opts.separator  "Options"
+
+            opts.on("-p", "--port PORT", Integer, "initial port to start services on") do |port|
+                @options[:port] = port
+            end
+
+            opts.on("-d", "--dir PATH", String, "directory for storage content") do |path|
+                @options[:dir] = path
+            end
+
+            opts.on("-h", "--help", "help") do
+                puts opts
+                exit
+            end
+        end
+
+        @opt_parser.parse!(args)
+    end
+
+    def help
+        puts @opt_parser
+    end
+end
+
+services = {
+    :go     => Service.new("go"),
+    :python => Service.new("python"),
+    :ruby   => Service.new("ruby"),
+    }
+
+parser = Parser.new(ARGV)
+options = parser.options
+
+case ARGV[0]
+when "start"
+    i = 0
+    services.each_value do |service|
+        service.start(options[:port]+i)
+        i += 1
+    end
+when "stop"
+    services.each do |service|
+        service.stop
+    end
+when "restart"
+    services.each do |service|
+        service.restart
+    end
+when "test"
+    services.each do |service|
+        service.test
+    end
+else
+    parser.help
+end
