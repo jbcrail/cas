@@ -25,6 +25,11 @@ To build all services:
     ./configure
     make
 
+To start dashboard web interface:
+
+    cd www
+    rackup
+
 ### Python
 
 To start the service:
