@@ -14,13 +14,12 @@ var store Storage
 func RetrieveHandler(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id := vars["id"]
-	if !store.Exists(id) {
+	content, err := store.Get(id)
+	switch err {
+	case ErrIdNotExist:
 		http.Error(w, "SHA-1 "+id+" does not exist", http.StatusNotFound)
 		return
-	}
-	content, _ := store.ReadAll(id)
-	contentId := Hash(content)
-	if id != contentId {
+	case ErrContentCorrupt:
 		http.Error(w, "Content is corrupted", http.StatusInternalServerError)
 		return
 	}
@@ -34,15 +33,16 @@ func StoreHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	content, _ := ioutil.ReadAll(req.Body)
-	id := Hash(content)
-	if store.Exists(id) {
+	id, err := store.Set(content)
+	if err == ErrContentExist {
 		http.Error(w, "", http.StatusConflict)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	if err := store.WriteAll(id, content); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	w.Write([]byte(id))
 }
 
 func main() {
